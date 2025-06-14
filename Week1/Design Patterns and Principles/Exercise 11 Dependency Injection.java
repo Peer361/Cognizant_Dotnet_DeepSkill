@@ -1,17 +1,45 @@
+
 // Exercise 11: Dependency Injection
-interface CustomerRepository { String findCustomerById(int id); }
+public interface CustomerRepository {
+    public String findCustomerById(int id);
+}
+
+// Concrete repository implementation
 class CustomerRepositoryImpl implements CustomerRepository {
-    public String findCustomerById(int id) { return \"Customer \" + id; }
+    @Override
+    public String findCustomerById(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Invalid customer ID: " + id);
+        }
+        return String.format("Customer %d", id);
+    }
 }
+
+// Service class using dependency injection
 class CustomerService {
-    private CustomerRepository repo;
-    CustomerService(CustomerRepository repo) { this.repo = repo; }
-    void find(int id) { System.out.println(repo.findCustomerById(id)); }
+    private final CustomerRepository repo;
+
+    // Constructor injection
+    CustomerService(CustomerRepository repo) {
+        this.repo = repo;
+    }
+
+    public void find(int id) {
+        System.out.println(repo.findCustomerById(id));
+    }
 }
-class DIExample {
+
+// Main class to test dependency injection
+public class DIExample {
     public static void main(String[] args) {
-        CustomerRepository repo = new CustomerRepositoryImpl();
-        CustomerService service = new CustomerService(repo);
-        service.find(101);
+        try {
+            CustomerRepository repo = new CustomerRepositoryImpl();
+            CustomerService service = new CustomerService(repo);
+            service.find(101); // Output: Customer 101
+            // Test invalid input
+            service.find(-1); // Throws exception
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 }
